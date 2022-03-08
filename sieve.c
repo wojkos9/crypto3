@@ -59,12 +59,14 @@ void mersenne_primes(int n) {
   int x = 4; // 2^e
   while(x < n) {
     int p = x-1;
-    if (!sieve[p]) { // if e is composite, so is p = 2^e - 1, so this is enough
+    dbg(3, "Check exponent %d\n", e);
+    if (!sieve[p]) {
       ++n_primes;
       dbg(2, "Mersenne prime %d (2^%d-1)\n", p, e);
     }
-    x <<= 1;
-    ++e;
+    while (++e <= n && sieve[e]) {
+      x <<= 1;
+    }
   }
 
   printf("Mersenne primes <= %d: %d\n", n, n_primes);
