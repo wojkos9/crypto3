@@ -2,9 +2,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <strings.h>
+#include <getopt.h>
 
-#define LOGLEVEL 3
-#define dbg(lvl, ...) if (a <= LOGLEVEL) printf(__VA_ARGS__)
+int LOGLEVEL = 1;
+#define dbg(lvl, ...) if (lvl <= LOGLEVEL) printf(__VA_ARGS__)
 
 uint8_t *mksieve(int n) {
   uint8_t *sieve = malloc(n+1);
@@ -22,14 +23,14 @@ uint8_t *mksieve(int n) {
   return sieve;
 }
 
-void primes_summary(int n) {
+void primes_under(int n) {
   uint8_t *sieve = mksieve(n);
 
   int n_primes = 0;
   for (int p = 0; p <= n; p++) {
     if (!sieve[p]) {
       ++n_primes;
-      printf("prime %d\n", p);
+      dbg(2, "prime %d\n", p);
     }
   }
 
@@ -44,10 +45,10 @@ void twin_primes(int a, int b) {
   for (int p = a; p <= b-2; p++) {
     if (!sieve[p] && !sieve[p+2]) {
       ++n_twins;
-      printf("Twin primes: %d, %d\n", p, p+2);
+      dbg(2, "Twin primes: %d, %d\n", p, p+2);
     }
   }
-  printf("Twin pairs: %d\n", n_twins);
+  printf("Twin pairs %d - %d: %d\n", a, b, n_twins);
   free(sieve);
 }
 
@@ -61,7 +62,7 @@ void mersenne_primes(int n) {
     int p = x-1;
     if (!sieve[p]) {
       ++n_primes;
-      printf("Mersenne prime %d (2^%d-1)\n", p, e);
+      dbg(2, "Mersenne prime %d (2^%d-1)\n", p, e);
     }
     x <<= 1;
     ++e;
@@ -71,9 +72,22 @@ void mersenne_primes(int n) {
   free(sieve);
 }
 
+void parse_opts(int argc, char *argv[]) {
+  char c;
+  while ((c = getopt(argc, argv, "v")) > 0) {
+    switch(c) {
+      case 'v':
+        ++LOGLEVEL;
+        break;
+    }
+  }
+}
+
 int main (int argc, char *argv[]) {
-  primes_summary(25);
-  twin_primes(0, 1000);
+  parse_opts(argc, argv);
+  primes_under(25);
+  twin_primes(0, 2137);
   mersenne_primes(10000000);
+  primes_under(10000);
   return 0;
 }
